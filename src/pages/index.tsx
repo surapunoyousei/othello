@@ -2,15 +2,16 @@ import { useState } from 'react';
 import styles from './index.module.css';
 
 const directions = [
-  [0, 0],
+  [0, 0],/*
   [0, -1],
   [1, -1],
   [1, 0],
   [1, 1],
-  [0, 1],
+  */[0, 1],/*
   [-1, 1],
   [-1, 0],
   [-1, -1],
+  */
 ];
 
 const Home = () => {
@@ -27,6 +28,12 @@ const Home = () => {
   ]);
 
   const clickHandler = (x: number, y: number) => {
+    // If a stone exist, We shouldn't do something.
+    if (board[y][x] !== 0) {
+      return;
+    }
+
+    const oppositeColor = 3 - turnColor;
     const newBoard = structuredClone(board);
 
     directions.map((aDirectionArray) => {
@@ -44,16 +51,20 @@ const Home = () => {
           board[targetStonePosition[0]] !== undefined &&
           board[targetStonePosition[0]][targetStonePosition[1]] !== undefined
         ) {
-          newBoard[targetStonePosition[0]][targetStonePosition[1]] = turnColor;
-          setTurn(3 - turnColor);
-          i++;
+          // 相手のチームの駒があった場合、ログに記録を取る。
+          if (newBoard[targetStonePosition[0]][targetStonePosition[1]] === oppositeColor) {
+            console.log("相手の色発見")
+          }
+          // 色変更用のコード
+          // newBoard[targetStonePosition[0]][targetStonePosition[1]] = turnColor;
+          // setTurn(3 - turnColor);
+          // i++;
         } else {
           targetStonePosition = [x, y];
           break;
         }
       }
     });
-
     setBoard(newBoard);
   };
 
