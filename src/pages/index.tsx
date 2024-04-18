@@ -2,16 +2,15 @@ import { useState } from 'react';
 import styles from './index.module.css';
 
 const directions = [
-  [0, 0],/*
+  [0, 0],
   [0, -1],
   [1, -1],
   [1, 0],
   [1, 1],
-  */[0, 1],/*
+  [0, 1],
   [-1, 1],
   [-1, 0],
-  [-1, -1],
-  */
+  [-1, -1]
 ];
 
 const Home = () => {
@@ -37,7 +36,7 @@ const Home = () => {
     const newBoard = structuredClone(board);
 
     directions.map((aDirectionArray) => {
-      let log = [];
+      const log = [];
       let targetStonePosition = [y, x];
 
       let i = 0;
@@ -51,14 +50,20 @@ const Home = () => {
           board[targetStonePosition[0]] !== undefined &&
           board[targetStonePosition[0]][targetStonePosition[1]] !== undefined
         ) {
-          // 相手のチームの駒があった場合、ログに記録を取る。
-          if (newBoard[targetStonePosition[0]][targetStonePosition[1]] === oppositeColor) {
-            console.log("相手の色発見")
+          const targetStoneColor = newBoard[targetStonePosition[0]][targetStonePosition[1]];
+          if (targetStoneColor === 0) {
+            return;
           }
-          // 色変更用のコード
-          // newBoard[targetStonePosition[0]][targetStonePosition[1]] = turnColor;
-          // setTurn(3 - turnColor);
-          // i++;
+          else if (targetStoneColor === oppositeColor) {
+            log.push(targetStonePosition);
+          } else if (targetStoneColor === turnColor) {
+            log.map((opponentStonePosition) => {
+              newBoard[y][x] = turnColor;
+              newBoard[opponentStonePosition[0]][opponentStonePosition[1]] = turnColor;
+              setTurn(3 - turnColor);
+            });
+          }
+          i++;
         } else {
           targetStonePosition = [x, y];
           break;
@@ -70,6 +75,9 @@ const Home = () => {
 
   return (
     <div className={styles.container}>
+              <div>
+          {turnColor === 1 ? "Black" : "White"} , Black = 1, White = 2
+        </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
