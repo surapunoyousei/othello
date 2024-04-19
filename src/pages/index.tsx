@@ -10,7 +10,7 @@ const directions = [
   [0, 1],
   [-1, 1],
   [-1, 0],
-  [-1, -1]
+  [-1, -1],
 ];
 
 const Home = () => {
@@ -36,11 +36,11 @@ const Home = () => {
     const newBoard = structuredClone(board);
 
     directions.map((aDirectionArray) => {
-      const log = [];
+      const targetStonePositions = [];
       let targetStonePosition = [y, x];
 
-      let i = 0;
-      while (i < 6) {
+      /* eslint-disable no-constant-condition */
+      while (true) {
         targetStonePosition = [
           targetStonePosition[0] + aDirectionArray[0],
           targetStonePosition[1] + aDirectionArray[1],
@@ -53,17 +53,18 @@ const Home = () => {
           const targetStoneColor = newBoard[targetStonePosition[0]][targetStonePosition[1]];
           if (targetStoneColor === 0) {
             return;
-          }
-          else if (targetStoneColor === oppositeColor) {
-            log.push(targetStonePosition);
+          } else if (targetStoneColor === oppositeColor) {
+            targetStonePositions.push(targetStonePosition);
           } else if (targetStoneColor === turnColor) {
-            log.map((opponentStonePosition) => {
+            if (!targetStonePositions.length) {
+              return;
+            }
+            targetStonePositions.map((opponentStonePosition) => {
               newBoard[y][x] = turnColor;
               newBoard[opponentStonePosition[0]][opponentStonePosition[1]] = turnColor;
-              setTurn(3 - turnColor);
             });
+            setTurn(3 - turnColor);
           }
-          i++;
         } else {
           targetStonePosition = [x, y];
           break;
@@ -75,9 +76,7 @@ const Home = () => {
 
   return (
     <div className={styles.container}>
-              <div>
-          {turnColor === 1 ? "Black" : "White"} , Black = 1, White = 2
-        </div>
+      <div>{turnColor === 1 ? 'Black' : 'White'} , Black = 1, White = 2</div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
