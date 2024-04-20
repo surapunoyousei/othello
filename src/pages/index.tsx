@@ -30,8 +30,8 @@ const Home = () => {
     let count = 0;
     board.map((aStoneColorsArray) => {
       aStoneColorsArray.map((color) => {
-        if(color === targetColor) {
-          count++
+        if (color === targetColor) {
+          count++;
         }
       });
     });
@@ -96,7 +96,10 @@ const Home = () => {
 
   return (
     <div className={styles.container}>
-      <div>{turnColor === 1 ? '黒色のターン' : '白色のターン'} {`| 黒色：${getStoneCounts(1)} 白色：${getStoneCounts(2)}`}</div>
+      <div>
+        {turnColor === 1 ? '黒色のターン' : '白色のターン'}{' '}
+        {`| 黒色：${getStoneCounts(1)} 白色：${getStoneCounts(2)}`}
+      </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
