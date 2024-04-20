@@ -13,6 +13,9 @@ const directions = [
   [-1, -1],
 ];
 
+let whiteStoneCount = 0;
+let blackStoneCount = 0;
+
 const Home = () => {
   const [turnColor, setTurn] = useState(1);
   const [board, setBoard] = useState([
@@ -26,14 +29,11 @@ const Home = () => {
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
 
-  const clickHandler = (x: number, y: number) => {
-    // If a stone exist, We shouldn't do something.
+  const getReplaceblePositons = (x: number, y: number, oppositeColor: number) => {
+    const replaceblePositons: number[][] = [];
     if (board[y][x] !== 0) {
-      return;
+      return replaceblePositons;
     }
-
-    const oppositeColor = 3 - turnColor;
-    const newBoard = structuredClone(board);
 
     directions.map((aDirectionArray) => {
       const targetStonePositions = [];
@@ -50,20 +50,15 @@ const Home = () => {
           board[targetStonePosition[0]] !== undefined &&
           board[targetStonePosition[0]][targetStonePosition[1]] !== undefined
         ) {
-          const targetStoneColor = newBoard[targetStonePosition[0]][targetStonePosition[1]];
+          const targetStoneColor = board[targetStonePosition[0]][targetStonePosition[1]];
           if (targetStoneColor === 0) {
             return;
           } else if (targetStoneColor === oppositeColor) {
             targetStonePositions.push(targetStonePosition);
           } else if (targetStoneColor === turnColor) {
-            if (!targetStonePositions.length) {
-              return;
+            for (let i = 0; i < targetStonePositions.length; i++) {
+              replaceblePositons.push(targetStonePositions[i]);
             }
-            targetStonePositions.map((opponentStonePosition) => {
-              newBoard[y][x] = turnColor;
-              newBoard[opponentStonePosition[0]][opponentStonePosition[1]] = turnColor;
-            });
-            setTurn(3 - turnColor);
           }
         } else {
           targetStonePosition = [x, y];
@@ -71,12 +66,53 @@ const Home = () => {
         }
       }
     });
+    return replaceblePositons;
+  };
+
+  const clickHandler = (x: number, y: number) => {
+    // If a stone exist, We shouldn't do something.
+    if (board[y][x] !== 0) {
+      return;
+    }
+
+    const oppositeColor = 3 - turnColor;
+    const newBoard = structuredClone(board);
+    const ReplaceblePositons = getReplaceblePositons(x, y, oppositeColor);
+
+    if (!ReplaceblePositons.length) {
+      return;
+    }
+
+    newBoard[y][x] = turnColor;
+
+    for (let i = 0; i < ReplaceblePositons.length; i++) {
+      const replacePosition = ReplaceblePositons[i];
+      newBoard[replacePosition[0]][replacePosition[1]] = turnColor;
+    }
+
+    setTurn(3 - turnColor);
     setBoard(newBoard);
+
+    // After setboard
+    // We should check where opposite put stone
+    // Add color to cell
+    for (let i = 0; i < newBoard.length; i++) {
+      const checkingArray = newBoard[i];
+      for (let j = 0; j < newBoard.length; j++) {
+        const checkingCell = checkingArray[j];
+        checkingCell === 1 ? blackStoneCount++ : checkingCell === 2 ? whiteStoneCount++ : '';
+      }
+    }
+
+    console.log(blackStoneCount, whiteStoneCount)
   };
 
   return (
     <div className={styles.container}>
-      <div>{turnColor === 1 ? 'Black' : 'White'} , Black = 1, White = 2</div>
+      <div>
+        {turnColor === 1 ? 'Black' : 'White'} , Black = 1, White = 2 {whiteStoneCount},
+        {blackStoneCount}
+      </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
