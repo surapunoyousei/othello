@@ -13,9 +13,6 @@ const directions = [
   [-1, -1],
 ];
 
-let whiteStoneCount = 0;
-let blackStoneCount = 0;
-
 const Home = () => {
   const [turnColor, setTurn] = useState(1);
   const [board, setBoard] = useState([
@@ -28,6 +25,18 @@ const Home = () => {
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
+
+  const getStoneCounts = (targetColor: number) => {
+    let count = 0;
+    board.map((aStoneColorsArray) => {
+      aStoneColorsArray.map((color) => {
+        if(color === targetColor) {
+          count++
+        }
+      });
+    });
+    return count;
+  };
 
   const getReplaceblePositons = (x: number, y: number, oppositeColor: number) => {
     const replaceblePositons: number[][] = [];
@@ -69,58 +78,41 @@ const Home = () => {
     return replaceblePositons;
   };
 
-  const clickHandler = (x: number, y: number) => {
-    // If a stone exist, We shouldn't do something.
-    if (board[y][x] !== 0) {
+  const clickHandler = (x: number, y: number, putablePositions: number[][]) => {
+    if (!putablePositions.length) {
       return;
     }
-
-    const oppositeColor = 3 - turnColor;
     const newBoard = structuredClone(board);
-    const ReplaceblePositons = getReplaceblePositons(x, y, oppositeColor);
-
-    if (!ReplaceblePositons.length) {
-      return;
-    }
 
     newBoard[y][x] = turnColor;
-
-    for (let i = 0; i < ReplaceblePositons.length; i++) {
-      const replacePosition = ReplaceblePositons[i];
+    for (let i = 0; i < putablePositions.length; i++) {
+      const replacePosition = putablePositions[i];
       newBoard[replacePosition[0]][replacePosition[1]] = turnColor;
     }
 
     setTurn(3 - turnColor);
     setBoard(newBoard);
-
-    // After setboard
-    // We should check where opposite put stone
-    // Add color to cell
-    for (let i = 0; i < newBoard.length; i++) {
-      const checkingArray = newBoard[i];
-      for (let j = 0; j < newBoard.length; j++) {
-        const checkingCell = checkingArray[j];
-        checkingCell === 1 ? blackStoneCount++ : checkingCell === 2 ? whiteStoneCount++ : '';
-      }
-    }
-
-    console.log(blackStoneCount, whiteStoneCount)
   };
 
   return (
     <div className={styles.container}>
-      <div>
-        {turnColor === 1 ? 'Black' : 'White'} , Black = 1, White = 2 {whiteStoneCount},
-        {blackStoneCount}
-      </div>
+      <div>{turnColor === 1 ? '黒色のターン' : '白色のターン'} {`| 黒色：${getStoneCounts(1)} 白色：${getStoneCounts(2)}`}</div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
-            <div className={styles.cell} key={`${x}-${y}`} onClick={() => clickHandler(x, y)}>
+            <div
+              className={styles.cell}
+              key={`${x}-${y}`}
+              onClick={() => clickHandler(x, y, getReplaceblePositons(x, y, 3 - turnColor))}
+              style={{
+                background:
+                  getReplaceblePositons(x, y, 3 - turnColor).length !== 0 ? 'blue' : 'none',
+              }}
+            >
               {color !== 0 && (
                 <div
                   className={styles.stone}
-                  style={{ background: color === 1 ? 'black' : 'white' }}
+                  style={{ background: color === 1 ? 'black' : color === 2 ? 'white' : 'none' }}
                 />
               )}
             </div>
@@ -130,5 +122,4 @@ const Home = () => {
     </div>
   );
 };
-
 export default Home;
