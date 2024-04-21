@@ -1,6 +1,7 @@
 .container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 3vw;
   align-items: center;
   justify-content: center;
   height: 100vh;
@@ -11,8 +12,8 @@
 .boardStyle {
   display: flex;
   flex-wrap: wrap;
-  width: 640px;
-  height: 640px;
+  width: 40vw;
+  height: 40vw;
   background-color: #01a743;
 }
 
@@ -20,14 +21,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
+  width: 12.5%;
+  height: 12.5%;
   border: solid 1px black;
 }
 
 .stone {
-  width: 64px;
-  height: 64px;
+  width: 60%;
+  height: 60%;
   background-color: white;
   border-radius: 100px;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 25vw;
+}
+
+
+@media only screen and (max-width: 767px) {
+  .container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .boardStyle {
+    display: flex;
+    flex-wrap: wrap;
+    width: 70vw;
+    height: 70vw;
+  }
+
+  .overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 70vw;
+  }
 }

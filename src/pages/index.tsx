@@ -13,6 +13,10 @@ const directions = [
   [-1, -1],
 ];
 
+let isGameEnd = false;
+let passCount = 0;
+let wonColor = 0;
+
 const Home = () => {
   const [turnColor, setTurn] = useState(1);
   const [board, setBoard] = useState([
@@ -78,6 +82,17 @@ const Home = () => {
     return replaceblePositons;
   };
 
+  const isTherePutablePosition = (targetColor: number = 3 - turnColor) => {
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (getReplaceblePositons(j, i, targetColor).length) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   const clickHandler = (x: number, y: number, putablePositions: number[][]) => {
     if (!putablePositions.length) {
       return;
@@ -94,9 +109,35 @@ const Home = () => {
     setBoard(newBoard);
   };
 
+  if ((getStoneCounts(1) + getStoneCounts(2) === 64 || passCount >= 2) && !isGameEnd) {
+    isGameEnd = true;
+    if (getStoneCounts(1) > getStoneCounts(2)) {
+      wonColor = 1;
+    } else if (getStoneCounts(1) < getStoneCounts(2)) {
+      wonColor = 2;
+    } else {
+      wonColor = 3;
+    }
+    return;
+  }
+
+  if (!isTherePutablePosition() && !isGameEnd) {
+    setTurn(3 - turnColor);
+    passCount++;
+  }
+
   return (
     <div className={styles.container}>
-      <div>
+      <div className={styles.overview}>
+        {isGameEnd && (
+          <div>
+            <div>ゲーム終了</div>
+            <div>{wonColor === 1 ? '黒色の勝ち' : wonColor === 2 ? '白色の勝ち' : '引き分け'}</div>
+          </div>
+        )}
+        <div>
+          黒色：{getStoneCounts(1)} 白色：{getStoneCounts(2)}
+        </div>
         {turnColor === 1 ? '黒色のターン' : '白色のターン'}{' '}
         {`| 黒色：${getStoneCounts(1)} 白色：${getStoneCounts(2)}`}
       </div>
