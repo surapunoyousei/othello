@@ -109,7 +109,7 @@ const Home = () => {
     setBoard(newBoard);
   };
 
-  if ((getStoneCounts(1) + getStoneCounts(2) === 64 || passCount >= 2) && !isGameEnd) {
+  if (getStoneCounts(1) + getStoneCounts(2) === 64 || passCount >= 2 && !isGameEnd) {
     isGameEnd = true;
     if (getStoneCounts(1) > getStoneCounts(2)) {
       wonColor = 1;
@@ -118,7 +118,6 @@ const Home = () => {
     } else {
       wonColor = 3;
     }
-    return;
   }
 
   if (!isTherePutablePosition() && !isGameEnd) {
