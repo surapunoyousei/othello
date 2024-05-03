@@ -30,6 +30,8 @@ const Home = () => {
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
 
+
+
   const getStoneCounts = (targetColor: number) => {
     let count = 0;
     board.map((aStoneColorsArray) => {
