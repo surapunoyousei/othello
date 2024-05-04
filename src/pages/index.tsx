@@ -48,7 +48,7 @@ const Home = () => {
       }
     }
     return false;
-  }
+  };
 
   const findReplaceablePositions = (x: number, y: number, color: number) => {
     if (board[y][x] !== 0) {
