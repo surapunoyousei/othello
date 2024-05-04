@@ -13,12 +13,9 @@ const directions = [
   [-1, -1],
 ];
 
-let isGameEnd = false;
-let passCount = 0;
-let wonColor = 0;
-
+const passCount = { 1: 0, 2: 0 };
 const Home = () => {
-  const [turnColor, setTurn] = useState(1);
+  const [turn, setTurn] = useState(1);
   const [board, setBoard] = useState([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -29,135 +26,113 @@ const Home = () => {
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
-
-
-
-  const getStoneCounts = (targetColor: number) => {
-    let count = 0;
-    board.map((aStoneColorsArray) => {
-      aStoneColorsArray.map((color) => {
-        if (color === targetColor) {
-          count++;
-        }
-      });
-    });
-    return count;
-  };
-
-  const getReplaceblePositons = (x: number, y: number, oppositeColor: number) => {
-    const replaceblePositons: number[][] = [];
-    if (board[y][x] !== 0) {
-      return replaceblePositons;
-    }
-
-    directions.map((aDirectionArray) => {
-      const targetStonePositions = [];
-      let targetStonePosition = [y, x];
-
-      /* eslint-disable no-constant-condition */
-      while (true) {
-        targetStonePosition = [
-          targetStonePosition[0] + aDirectionArray[0],
-          targetStonePosition[1] + aDirectionArray[1],
-        ];
-
-        if (
-          board[targetStonePosition[0]] !== undefined &&
-          board[targetStonePosition[0]][targetStonePosition[1]] !== undefined
-        ) {
-          const targetStoneColor = board[targetStonePosition[0]][targetStonePosition[1]];
-          if (targetStoneColor === 0) {
-            return;
-          } else if (targetStoneColor === oppositeColor) {
-            targetStonePositions.push(targetStonePosition);
-          } else if (targetStoneColor === turnColor) {
-            for (let i = 0; i < targetStonePositions.length; i++) {
-              replaceblePositons.push(targetStonePositions[i]);
-            }
-          }
-        } else {
-          targetStonePosition = [x, y];
-          break;
+  const toggleTurn = () => setTurn(3 - turn);
+  const countStones = (color: number) => {
+    let result = 0;
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (board[y][x] === color) {
+          result++;
         }
       }
-    });
-    return replaceblePositons;
+    }
+    return result;
   };
 
-  const isTherePutablePosition = (targetColor: number = 3 - turnColor) => {
-    for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board[i].length; j++) {
-        if (getReplaceblePositons(j, i, targetColor).length) {
+  const IsTherePuttableCells = () => {
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (findReplaceablePositions(x, y, turn).length) {
           return true;
         }
       }
     }
     return false;
-  };
-
-  const clickHandler = (x: number, y: number, putablePositions: number[][]) => {
-    if (!putablePositions.length) {
-      return;
-    }
-    const newBoard = structuredClone(board);
-
-    newBoard[y][x] = turnColor;
-    for (let i = 0; i < putablePositions.length; i++) {
-      const replacePosition = putablePositions[i];
-      newBoard[replacePosition[0]][replacePosition[1]] = turnColor;
-    }
-
-    setTurn(3 - turnColor);
-    setBoard(newBoard);
-  };
-
-  if (getStoneCounts(1) + getStoneCounts(2) === 64 || (passCount >= 2 && !isGameEnd)) {
-    isGameEnd = true;
-    if (getStoneCounts(1) > getStoneCounts(2)) {
-      wonColor = 1;
-    } else if (getStoneCounts(1) < getStoneCounts(2)) {
-      wonColor = 2;
-    } else {
-      wonColor = 3;
-    }
   }
 
-  if (!isTherePutablePosition() && !isGameEnd) {
-    setTurn(3 - turnColor);
-    passCount++;
+  const findReplaceablePositions = (x: number, y: number, color: number) => {
+    if (board[y][x] !== 0) {
+      return [];
+    }
+
+    const result: number[][][] = [];
+    directions.map(([dx, dy]) => {
+      const positions = [];
+      let cx = x + dx,
+        cy = y + dy;
+      while (board[cy] !== undefined && board[cy][cx] === 3 - color) {
+        positions.push([cx, cy]);
+        cx += dx;
+        cy += dy;
+      }
+      return board[cy] !== undefined && board[cy][cx] === color ? result.push(positions) : null;
+    });
+
+    return result.length ? result.flat() : [];
+  };
+
+  const clickHandler = (x: number, y: number) => {
+    const positions = findReplaceablePositions(x, y, turn);
+    if (!positions.length) return;
+    const newBoard = structuredClone(board);
+    newBoard[y][x] = turn;
+    for (const [cx, cy] of positions) {
+      newBoard[cy][cx] = turn;
+    }
+    setBoard(newBoard);
+    toggleTurn();
+  };
+
+  const pass = () => {
+    turn === 1 ? passCount[1]++ : passCount[2]++;
+    toggleTurn();
+  };
+
+  const blackStones = countStones(1),
+    whiteStones = countStones(2);
+  const gameEnd = blackStones + whiteStones === 64 || Object.values(passCount).some((v) => v >= 2);
+
+  if (!IsTherePuttableCells() && !gameEnd) {
+    pass();
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.overview}>
-        {isGameEnd && (
+        {gameEnd && (
           <div>
             <div>ゲーム終了</div>
-            <div>{wonColor === 1 ? '黒色の勝ち' : wonColor === 2 ? '白色の勝ち' : '引き分け'}</div>
+            <div>
+              {blackStones > whiteStones
+                ? '黒の勝ち'
+                : whiteStones > blackStones
+                  ? '白の勝ち'
+                  : '引き分け'}
+            </div>
           </div>
         )}
         <div>
-          黒色：{getStoneCounts(1)} 白色：{getStoneCounts(2)}
+          黒: {blackStones} 白: {whiteStones}
         </div>
-        {turnColor === 1 ? '黒色のターン' : '白色のターン'}{' '}
-        {`| 黒色：${getStoneCounts(1)} 白色：${getStoneCounts(2)}`}
+        <div>{turn === 1 ? '黒色のターン' : '白色のターン'}</div>
+        <div>
+          パス回数 黒: {passCount[1]} 白: {passCount[2]}
+        </div>
+        {!gameEnd && <button onClick={pass}>パス</button>}
       </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
             <div
-              className={styles.cell}
               key={`${x}-${y}`}
-              onClick={() => clickHandler(x, y, getReplaceblePositons(x, y, 3 - turnColor))}
-              style={{
-                background:
-                  getReplaceblePositons(x, y, 3 - turnColor).length !== 0 ? 'blue' : 'none',
-              }}
+              className={styles.cell}
+              style={{ background: findReplaceablePositions(x, y, turn).length ? 'blue' : 'none' }}
+              onClick={() => clickHandler(x, y)}
             >
               {color !== 0 && (
                 <div
                   className={styles.stone}
-                  style={{ background: color === 1 ? 'black' : color === 2 ? 'white' : 'none' }}
+                  style={{ background: color === 1 ? 'black' : 'white' }}
                 />
               )}
             </div>
@@ -167,4 +142,5 @@ const Home = () => {
     </div>
   );
 };
+
 export default Home;
