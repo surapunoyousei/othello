@@ -13,19 +13,20 @@ const directions = [
   [-1, -1],
 ];
 
-const passCount = { 1: 0, 2: 0 };
 const Home = () => {
   const [turn, setTurn] = useState(1);
   const [board, setBoard] = useState([
+    [1, 2, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ]);
+  const [passBlackCount, setBlackCount] = useState(0);
+  const [passWhiteCount, setWhiteCount] = useState(0);
   const toggleTurn = () => setTurn(3 - turn);
   const countStones = (color: number) => {
     let result = 0;
@@ -80,19 +81,19 @@ const Home = () => {
       newBoard[cy][cx] = turn;
     }
 
-    turn === 1 ? passCount[1] = 0 : passCount[2] = 0;
+    turn === 1 ? setBlackCount(passBlackCount + 1) : setWhiteCount(passWhiteCount + 1);
     setBoard(newBoard);
     toggleTurn();
   };
 
   const pass = () => {
-    turn === 1 ? passCount[1]++ : passCount[2]++;
+    turn === 1 ? setBlackCount(passBlackCount + 1) : setWhiteCount(passWhiteCount + 1);
     toggleTurn();
   };
 
   const blackStones = countStones(1),
     whiteStones = countStones(2);
-  const gameEnd = blackStones + whiteStones === 64 || Object.values(passCount).some((v) => v >= 2);
+  const gameEnd = blackStones + whiteStones === 64 || passBlackCount === 2 || passWhiteCount === 2;
 
   if (!IsTherePuttableCells() && !gameEnd) {
     pass();
@@ -118,9 +119,8 @@ const Home = () => {
         </div>
         <div>{turn === 1 ? '黒色のターン' : '白色のターン'}</div>
         <div>
-          パス回数 黒: {passCount[1]} 白: {passCount[2]}
+          パス回数 黒: {passBlackCount} 白: {passWhiteCount}
         </div>
-        {!gameEnd && <button onClick={pass}>パス</button>}
       </div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
