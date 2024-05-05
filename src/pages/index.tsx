@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './index.module.css';
+import { truncate } from 'fs';
 
 const directions = [
   [0, 0],
@@ -17,14 +18,14 @@ const passCount = { 1: 0, 2: 0 };
 const Home = () => {
   const [turn, setTurn] = useState(1);
   const [board, setBoard] = useState([
+    [1, 2, 0, 0, 0, 0, 0, 0],
+    [2, 2, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 2, 0, 0, 0, 0, 0, 0],
+    [1, 2, 0, 0, 0, 0, 0, 0],
   ]);
   const toggleTurn = () => setTurn(3 - turn);
   const countStones = (color: number) => {
@@ -79,6 +80,8 @@ const Home = () => {
     for (const [cx, cy] of positions) {
       newBoard[cy][cx] = turn;
     }
+
+    turn === 1 ? passCount[1] = 0 : passCount[2] = 0;
     setBoard(newBoard);
     toggleTurn();
   };
