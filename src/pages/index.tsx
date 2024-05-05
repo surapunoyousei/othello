@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styles from './index.module.css';
-import { truncate } from 'fs';
 
 const directions = [
   [0, 0],
