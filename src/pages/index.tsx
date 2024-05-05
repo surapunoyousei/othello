@@ -16,11 +16,11 @@ const directions = [
 const Home = () => {
   const [turn, setTurn] = useState(1);
   const [board, setBoard] = useState([
+    [1, 2, 0, 0, 0, 0, 0, 0],
+    [2, 2, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -81,7 +81,7 @@ const Home = () => {
       newBoard[cy][cx] = turn;
     }
 
-    turn === 1 ? setBlackCount(passBlackCount + 1) : setWhiteCount(passWhiteCount + 1);
+    turn === 1 ? setBlackCount(0) : setWhiteCount(0);
     setBoard(newBoard);
     toggleTurn();
   };
